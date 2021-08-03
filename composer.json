@@ -4,7 +4,8 @@
         "guzzlehttp/psr7": "^2.0",
         "http-interop/http-factory-guzzle": "^1.2",
         "bryanjhv/slim-session": "~4.0",
-        "php-di/php-di": "^6.3"
+        "php-di/php-di": "^6.3",
+        "league/oauth2-client": "^2.6"
     },
     "scripts": {
       "serve": "php -S localhost:8000 -t public",

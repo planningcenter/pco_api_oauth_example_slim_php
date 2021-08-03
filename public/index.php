@@ -5,17 +5,27 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
 use DI\Container;
 use SlimSession\Helper as SessionHelper;
+use League\OAuth2\Client\Provider\GenericProvider as OAuthProvider;
 
 require __DIR__ . '/../vendor/autoload.php';
 
 $container = new Container();
-$container->set("OAUTH_APP_ID", getenv("OAUTH_APP_ID"));
-$container->set("OAUTH_SECRET", getenv("OAUTH_SECRET"));
-$container->set("SCOPE", "people services");
 $container->set("API_URL", "https://api.planningcenteronline.com");
 $container->set("TOKEN_EXPIRATION_PADDING", 300); /* go ahead and refresh a token if it's within this many seconds of expiring */
 $container->set("session", function () {
     return new SessionHelper();
+});
+$container->set("oauth", function() {
+    return new OAuthProvider([
+        "clientId" => getenv("OAUTH_APP_ID"),
+        "clientSecret" => getenv("OAUTH_SECRET"),
+        "redirectUri" => "http://localhost:8000/auth/complete",
+        "scopeSeparator" => " ",
+        "scopes" => ["people"],
+        "urlAccessToken" => "https://api.planningcenteronline.com/oauth/token",
+        "urlAuthorize" => "https://api.planningcenteronline.com/oauth/authorize",
+        "urlResourceOwnerDetails" => "https://api.planningcenteronline.com/me"
+    ]);
 });
 AppFactory::setContainer($container);
 $app = AppFactory::create();
@@ -43,6 +53,12 @@ $app->get('/', function (Request $request, Response $response, $args) {
 
 $app->get("/auth", function (Request $request, Response $response, $args) {
     // Build the authorization URL and redirect to it
+    $oauth = $this->get("oauth");
+    $authorizationUrl = $oauth->getAuthorizationUrl();
+
+    return $response
+        ->withHeader("Location", $authorizationUrl)
+        ->withStatus(302);
 });
 
 $app->get("/auth/complete", function (Request $request, Response $response, $args) {
