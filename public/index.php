@@ -83,9 +83,26 @@ $app->get("/auth/complete", function (Request $request, Response $response, $arg
 });
 
 $app->get("/auth/logout", function (Request $request, Response $response, $args) {
+    $oauth = $this->get("oauth");
+    $apiUrl = $this->get('API_URL');
+    $session = $this->get("session");
+    $token = $session->token;
+
     // Revoke our authentication
+    $revokeRequest = $oauth->getAuthenticatedRequest(
+        "POST",
+        "$apiUrl/oauth/revoke",
+        $token,
+        ["token" => $token],
+    );
+
     // Clear our token out of the session
+    $session->delete("token");
+
     // Redirect home
+    return $response
+        ->withHeader("Location", "/")
+        ->withStatus(302);
 });
 
 $app->run();
