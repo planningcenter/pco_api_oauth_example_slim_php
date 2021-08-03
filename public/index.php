@@ -15,16 +15,16 @@ $container->set("TOKEN_EXPIRATION_PADDING", 300); /* go ahead and refresh a toke
 $container->set("session", function () {
     return new SessionHelper();
 });
-$container->set("oauth", function() {
+$container->set("oauth", function() use($container) {
     return new OAuthProvider([
         "clientId" => getenv("OAUTH_APP_ID"),
         "clientSecret" => getenv("OAUTH_SECRET"),
         "redirectUri" => "http://localhost:8000/auth/complete",
         "scopeSeparator" => " ",
         "scopes" => ["people"],
-        "urlAccessToken" => "https://api.planningcenteronline.com/oauth/token",
-        "urlAuthorize" => "https://api.planningcenteronline.com/oauth/authorize",
-        "urlResourceOwnerDetails" => "https://api.planningcenteronline.com/me"
+        "urlAccessToken" => "{$container->get("API_URL")}/oauth/token",
+        "urlAuthorize" => "{$container->get("API_URL")}/oauth/authorize",
+        "urlResourceOwnerDetails" => "{$container->get("API_URL")}/me"
     ]);
 });
 AppFactory::setContainer($container);
@@ -39,14 +39,27 @@ $app->add(
 
 $app->get('/', function (Request $request, Response $response, $args) {
     $oauth = $this->get("oauth");
-    $apiUrl = $this->get('API_URL');
+    $apiUrl = $this->get("API_URL");
     $session = $this->get("session");
 
     // If we have a token to make requests
     if ($session->exists("token")) {
-        // Check if we need to refresh it
+        $token = $session->token;
+
+        // Refresh token if needed
+        if (
+            $token->getExpires() &&
+            ($token->getExpires() < time() + $this->get("TOKEN_EXPIRATION_PADDING")) &&
+            token->getRefreshToken()
+        ) {
+            $newToken = $oauth->getAccessToken("refresh_token", [
+                "refresh_token" => $token->getRefreshToken()
+            ]);
+            $session->token = $newToken;
+        }
+
         // Fetch some people from the Planning Center API
-        $peopleResponse = $oauth->getAuthenticatedRequest("GET", "$apiUrl/people/v2/people", $session->token);
+        $peopleResponse = $oauth->getAuthenticatedRequest("GET", "{$apiUrl}/people/v2/people", $token);
         $people = $oauth->getParsedResponse($peopleResponse);
         $response->getBody()->write("<h1>Hello PCO API!</h1><a href='/auth/logout'>Logout</a><br><pre>" . json_encode($people, JSON_PRETTY_PRINT) . "</pre>");
     } else {
@@ -91,7 +104,7 @@ $app->get("/auth/logout", function (Request $request, Response $response, $args)
     // Revoke our authentication
     $revokeRequest = $oauth->getAuthenticatedRequest(
         "POST",
-        "$apiUrl/oauth/revoke",
+        "{$apiUrl}/oauth/revoke",
         $token,
         ["token" => $token],
     );
