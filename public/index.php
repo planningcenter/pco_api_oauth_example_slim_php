@@ -63,9 +63,17 @@ $app->get("/auth", function (Request $request, Response $response, $args) {
 
 $app->get("/auth/complete", function (Request $request, Response $response, $args) {
     // We successfully authenticated with Planning Center and have been redirected back with a code
+    $code = $request->getQueryParams()["code"];
     // Use the code to fetch our access token
+    $oauth = $this->get("oauth");
+    $token = $oauth->getAccessToken("authorization_code", ["code" => $code]);
     // Set the token in our session
+    $this->get("session")->set("token", $token);
+
     // Redirect home
+    return $response
+        ->withHeader("Location", "/")
+        ->withStatus(302);
 });
 
 $app->get("/auth/logout", function (Request $request, Response $response, $args) {
