@@ -10,8 +10,8 @@ use League\OAuth2\Client\Provider\GenericProvider as OAuthProvider;
 require __DIR__ . '/../vendor/autoload.php';
 
 $container = new Container();
-$container->set("API_URL", "https://api.planningcenteronline.com");
-$container->set("TOKEN_EXPIRATION_PADDING", 300); /* go ahead and refresh a token if it's within this many seconds of expiring */
+$container->set("apiUrl", "https://api.planningcenteronline.com");
+$container->set("tokenExpirationPadding", 300); // go ahead and refresh a token if it's within this many seconds of expiring
 $container->set("session", function () {
     return new SessionHelper();
 });
@@ -22,9 +22,9 @@ $container->set("oauth", function() use($container) {
         "redirectUri" => "http://localhost:8000/auth/complete",
         "scopeSeparator" => " ",
         "scopes" => ["people"],
-        "urlAccessToken" => "{$container->get("API_URL")}/oauth/token",
-        "urlAuthorize" => "{$container->get("API_URL")}/oauth/authorize",
-        "urlResourceOwnerDetails" => "{$container->get("API_URL")}/me"
+        "urlAccessToken" => "{$container->get("apiUrl")}/oauth/token",
+        "urlAuthorize" => "{$container->get("apiUrl")}/oauth/authorize",
+        "urlResourceOwnerDetails" => "{$container->get("apiUrl")}/me"
     ]);
 });
 AppFactory::setContainer($container);
@@ -39,7 +39,7 @@ $app->add(
 
 $app->get('/', function (Request $request, Response $response, $args) {
     $oauth = $this->get("oauth");
-    $apiUrl = $this->get("API_URL");
+    $apiUrl = $this->get("apiUrl");
     $session = $this->get("session");
 
     // If we have a token to make requests
@@ -49,7 +49,7 @@ $app->get('/', function (Request $request, Response $response, $args) {
         // Refresh token if needed
         if (
             $token->getExpires() &&
-            ($token->getExpires() < time() + $this->get("TOKEN_EXPIRATION_PADDING")) &&
+            ($token->getExpires() < time() + $this->get("tokenExpirationPadding")) &&
             token->getRefreshToken()
         ) {
             $newToken = $oauth->getAccessToken("refresh_token", [
@@ -97,7 +97,7 @@ $app->get("/auth/complete", function (Request $request, Response $response, $arg
 
 $app->get("/auth/logout", function (Request $request, Response $response, $args) {
     $oauth = $this->get("oauth");
-    $apiUrl = $this->get('API_URL');
+    $apiUrl = $this->get('apiUrl');
     $session = $this->get("session");
     $token = $session->token;
 
