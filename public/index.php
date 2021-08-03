@@ -17,8 +17,30 @@ AppFactory::setContainer($container);
 $app = AppFactory::create();
 
 $app->get('/', function (Request $request, Response $response, $args) {
+    // If we have a token to make requests
+        // Check if we need to refresh it
+        // Fetch some people from the Planning Center API
+    // Otherwise, show a link to /auth to login with Planning Center
+
     $response->getBody()->write("<h1>Hello world!</h1>" . $this->get("SCOPE"));
     return $response;
+});
+
+$app->get("/auth", function (Request $request, Response $response, $args) {
+    // Build the authorization URL and redirect to it
+});
+
+$app->get("/auth/complete", function (Request $request, Response $response, $args) {
+    // We successfully authenticated with Planning Center and have been redirected back with a code
+    // Use the code to fetch our access token
+    // Set the token in our session
+    // Redirect home
+});
+
+$app->get("/auth/logout", function (Request $request, Response $response, $args) {
+    // Revoke our authentication
+    // Clear our token out of the session
+    // Redirect home
 });
 
 $app->run();
