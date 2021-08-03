@@ -35,9 +35,9 @@ $app->get('/', function (Request $request, Response $response, $args) {
         // Fetch some people from the Planning Center API
     } else {
         // Otherwise, show a link to /auth to login with Planning Center
+        $response->getBody()->write("<h1>Hello PCO API!</h1><a href='/auth'>Login with Planning Center</a>");
     }
 
-    $response->getBody()->write("<h1>Hello world!</h1>" . $this->get("SCOPE"));
     return $response;
 });
 
