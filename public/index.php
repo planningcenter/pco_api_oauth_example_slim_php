@@ -38,11 +38,17 @@ $app->add(
 );
 
 $app->get('/', function (Request $request, Response $response, $args) {
+    $oauth = $this->get("oauth");
+    $apiUrl = $this->get('API_URL');
     $session = $this->get("session");
+
     // If we have a token to make requests
     if ($session->exists("token")) {
         // Check if we need to refresh it
         // Fetch some people from the Planning Center API
+        $peopleResponse = $oauth->getAuthenticatedRequest("GET", "$apiUrl/people/v2/people", $session->token);
+        $people = $oauth->getParsedResponse($peopleResponse);
+        $response->getBody()->write("<h1>Hello PCO API!</h1><a href='/auth/logout'>Logout</a><br><pre>" . json_encode($people, JSON_PRETTY_PRINT) . "</pre>");
     } else {
         // Otherwise, show a link to /auth to login with Planning Center
         $response->getBody()->write("<h1>Hello PCO API!</h1><a href='/auth'>Login with Planning Center</a>");
