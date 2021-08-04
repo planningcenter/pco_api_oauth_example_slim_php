@@ -10,6 +10,15 @@ a:visited {
   color: #08c;
 }
 
+pre {
+  height: 600px;
+  overflow: scroll;
+  padding: 1rem;
+  font-family: monospace;
+  background-color: #eee;
+  border: 1px solid #ddd;
+}
+
 .wrap {
   max-width: 1200px;
   margin: 0 auto;
