@@ -5,6 +5,16 @@
     <link rel="stylesheet" href="style.css"/>
   </head>
   <body>
-    <div id="content">{% block content %}{% endblock %}</div>
+    <div class="wrap">
+      <header>
+        <h1>Hello PCO API!</h1>
+        {% if loggedIn %}
+          <ul class="nav">
+            <li><a href='/auth/logout'>Logout</a></li>
+          </ul>
+        {% endif %}
+      </header>
+      <div id="content">{% block content %}{% endblock %}</div>
+    </div>
   </body>
 </html>

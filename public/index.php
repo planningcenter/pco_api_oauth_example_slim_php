@@ -68,7 +68,15 @@ $app->get('/', function (Request $request, Response $response, $args) {
         $parsedResponse = $oauth->getParsedResponse($peopleResponse);
         $people = $parsedResponse["data"];
 
-        return $view->render($response, "index.html", ["people" => $people, "parsedResponse" => $parsedResponse]);
+        return $view->render(
+            $response,
+            "index.html",
+            [
+                "loggedIn" => isset($session->token),
+                "people" => $people,
+                "parsedResponse" => $parsedResponse
+            ],
+        );
     } else {
         // Otherwise, show a link to /auth to login with Planning Center
         return $view->render($response, "login.html");
