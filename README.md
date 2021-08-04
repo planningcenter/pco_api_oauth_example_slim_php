@@ -3,7 +3,7 @@
 This is an example Slim PHP app for demonstrating how one might build an app to authenticate any PCO user
 and then subsequently use that authentication to query the API.
 
-NOTE: This app talks to our v2 API, documented at [planningcenter.github.io/api-docs](https://planningcenter.github.io/api-docs).
+You can learn more about Planning Center's API [here](https://developer.planning.center/docs).
 
 ## Setup
 
