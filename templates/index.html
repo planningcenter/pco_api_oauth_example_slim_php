@@ -1,0 +1,8 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h1>Hello PCO API!</h1>
+<a href='/auth/logout'>Logout</a>
+<br>
+<pre>{{parsedResponse | json_encode(constant("JSON_PRETTY_PRINT"))}}</pre>
+{% endblock %}

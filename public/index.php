@@ -6,6 +6,8 @@ use Slim\Factory\AppFactory;
 use DI\Container;
 use SlimSession\Helper as SessionHelper;
 use League\OAuth2\Client\Provider\GenericProvider as OAuthProvider;
+use Slim\Views\Twig;
+use Slim\Views\TwigMiddleware;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -36,11 +38,14 @@ $app->add(
         "lifetime" => "4 hours",
     ])
 );
+$twig = Twig::create("../templates", ["cache" => false]);
+$app->add(TwigMiddleware::create($app, $twig));
 
 $app->get('/', function (Request $request, Response $response, $args) {
     $oauth = $this->get("oauth");
     $apiUrl = $this->get("apiUrl");
     $session = $this->get("session");
+    $view = Twig::fromRequest($request);
 
     // If we have a token to make requests
     if ($session->exists("token")) {
@@ -60,14 +65,14 @@ $app->get('/', function (Request $request, Response $response, $args) {
 
         // Fetch some people from the Planning Center API
         $peopleResponse = $oauth->getAuthenticatedRequest("GET", "{$apiUrl}/people/v2/people", $token);
-        $people = $oauth->getParsedResponse($peopleResponse);
-        $response->getBody()->write("<h1>Hello PCO API!</h1><a href='/auth/logout'>Logout</a><br><pre>" . json_encode($people, JSON_PRETTY_PRINT) . "</pre>");
+        $parsedResponse = $oauth->getParsedResponse($peopleResponse);
+        $people = $parsedResponse["data"];
+
+        return $view->render($response, "index.html", ["people" => $people, "parsedResponse" => $parsedResponse]);
     } else {
         // Otherwise, show a link to /auth to login with Planning Center
-        $response->getBody()->write("<h1>Hello PCO API!</h1><a href='/auth'>Login with Planning Center</a>");
+        return $view->render($response, "login.html");
     }
-
-    return $response;
 });
 
 $app->get("/auth", function (Request $request, Response $response, $args) {
