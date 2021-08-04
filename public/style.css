@@ -1,0 +1,27 @@
+.people-list {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.person {
+  display: block;
+  width: 360px;
+  margin-bottom: 1rem;
+}
+
+.person-avatar {
+  height: 240px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.person-avatar img {
+  display: block;
+  width: 100%;
+}
+
+.person-name {
+  padding: .5rem 0;
+  font-size: 1.5rem;
+}

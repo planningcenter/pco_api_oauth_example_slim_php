@@ -3,6 +3,17 @@
 {% block content %}
 <h1>Hello PCO API!</h1>
 <a href='/auth/logout'>Logout</a>
-<br>
+
+<div class="people-list">
+  {% for person in people %}
+    <div class="person">
+      <div class="person-avatar">
+        <img src="{{person.attributes.avatar}}" alt="{{person.attributes.name}}">
+      </div>
+      <div class="person-name">{{person.attributes.name}}</div>
+    </div>
+  {% endfor %}
+</div>
+
 <pre>{{parsedResponse | json_encode(constant("JSON_PRETTY_PRINT"))}}</pre>
 {% endblock %}
