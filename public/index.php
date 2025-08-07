@@ -21,7 +21,7 @@ $container->set("oauth", function() use($container) {
     return new OAuthProvider([
         "clientId" => getenv("OAUTH_APP_ID"),
         "clientSecret" => getenv("OAUTH_SECRET"),
-        "redirectUri" => "http://localhost:8000/auth/complete",
+        "redirectUri" => "http://localhost:6001/auth/complete",
         "scopeSeparator" => " ",
         "scopes" => ["people"],
         "urlAccessToken" => "{$container->get("apiUrl")}/oauth/token",

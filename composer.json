@@ -9,7 +9,7 @@
         "slim/twig-view": "^3.2"
     },
     "scripts": {
-      "serve": "php -S localhost:8000 -t public",
+      "serve": "php -S localhost:6001 -t public",
       "s": "@serve"
     }
 }

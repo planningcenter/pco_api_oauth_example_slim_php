@@ -9,7 +9,7 @@ You can learn more about Planning Center's API [here](https://developer.planning
 
 1. Create an app at [api.planningcenteronline.com](https://api.planningcenteronline.com/oauth/applications).
 
-   Set the callback URL to be `http://localhost:8000/auth/complete`.
+   Set the callback URL to be `http://localhost:6001/auth/complete`.
 
 2. Install the required packages:
 
@@ -25,7 +25,7 @@ You can learn more about Planning Center's API [here](https://developer.planning
    composer serve
    ```
 
-4. Visit [localhost:8000](http://localhost:8000).
+4. Visit [localhost:6001](http://localhost:6001).
 
 ## Copyright & License
 
