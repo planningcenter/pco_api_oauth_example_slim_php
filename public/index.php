@@ -12,7 +12,7 @@ use Slim\Views\TwigMiddleware;
 require __DIR__ . '/../vendor/autoload.php';
 
 $container = new Container();
-$container->set("apiUrl", "https://api.planningcenteronline.com");
+$container->set("apiUrl", getenv("API_URL") ?: "https://api.planningcenteronline.com");
 $container->set("tokenExpirationPadding", 300); // go ahead and refresh a token if it's within this many seconds of expiring
 $container->set("session", function () {
     return new SessionHelper();
