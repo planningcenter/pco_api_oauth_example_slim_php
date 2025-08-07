@@ -55,7 +55,7 @@ $app->get('/', function (Request $request, Response $response, $args) {
         if (
             $token->getExpires() &&
             ($token->getExpires() < time() + $this->get("tokenExpirationPadding")) &&
-            token->getRefreshToken()
+            $token->getRefreshToken()
         ) {
             $newToken = $oauth->getAccessToken("refresh_token", [
                 "refresh_token" => $token->getRefreshToken()
