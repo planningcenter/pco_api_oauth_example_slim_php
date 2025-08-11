@@ -36,6 +36,11 @@ header {
   list-style: none;
 }
 
+.nav li {
+  display: inline-block;
+  margin-left: 1rem;
+}
+
 .nav li a {
   font-size: 1.5rem;
 }

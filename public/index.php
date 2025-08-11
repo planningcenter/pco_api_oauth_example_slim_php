@@ -42,45 +42,62 @@ $twig = Twig::create("../templates", ["cache" => false]);
 $app->add(TwigMiddleware::create($app, $twig));
 
 $app->get('/', function (Request $request, Response $response, $args) {
+    $session = $this->get("session");
+    $view = Twig::fromRequest($request);
+
+    // If we have a token, redirect to /people
+    if ($session->exists("token")) {
+        return $response
+            ->withHeader("Location", "/people")
+            ->withStatus(302);
+    } else {
+        // Otherwise, show a link to /auth to login with Planning Center
+        return $view->render($response, "login.html");
+    }
+});
+
+$app->get('/people', function (Request $request, Response $response, $args) {
     $oauth = $this->get("oauth");
     $apiUrl = $this->get("apiUrl");
     $session = $this->get("session");
     $view = Twig::fromRequest($request);
 
-    // If we have a token to make requests
-    if ($session->exists("token")) {
-        $token = $session->token;
-
-        // Refresh token if needed
-        if (
-            $token->getExpires() &&
-            ($token->getExpires() < time() + $this->get("tokenExpirationPadding")) &&
-            $token->getRefreshToken()
-        ) {
-            $newToken = $oauth->getAccessToken("refresh_token", [
-                "refresh_token" => $token->getRefreshToken()
-            ]);
-            $session->token = $newToken;
-        }
-
-        // Fetch some people from the Planning Center API
-        $peopleResponse = $oauth->getAuthenticatedRequest("GET", "{$apiUrl}/people/v2/people", $token);
-        $parsedResponse = $oauth->getParsedResponse($peopleResponse);
-        $people = $parsedResponse["data"];
-
-        return $view->render(
-            $response,
-            "index.html",
-            [
-                "loggedIn" => isset($session->token),
-                "people" => $people,
-                "parsedResponse" => $parsedResponse
-            ],
-        );
-    } else {
-        // Otherwise, show a link to /auth to login with Planning Center
-        return $view->render($response, "login.html");
+    // If we don't have a token, redirect to auth
+    if (!$session->exists("token")) {
+        return $response
+            ->withHeader("Location", "/auth")
+            ->withStatus(302);
     }
+
+    $token = $session->token;
+
+    // Refresh token if needed
+    if (
+        $token->getExpires() &&
+        ($token->getExpires() < time() + $this->get("tokenExpirationPadding")) &&
+        $token->getRefreshToken()
+    ) {
+        $newToken = $oauth->getAccessToken("refresh_token", [
+            "refresh_token" => $token->getRefreshToken()
+        ]);
+        $session->token = $newToken;
+        $token = $newToken;
+    }
+
+    // Fetch some people from the Planning Center API
+    $peopleResponse = $oauth->getAuthenticatedRequest("GET", "{$apiUrl}/people/v2/people", $token);
+    $parsedResponse = $oauth->getParsedResponse($peopleResponse);
+    $people = $parsedResponse["data"];
+
+    return $view->render(
+        $response,
+        "people.html",
+        [
+            "loggedIn" => isset($session->token),
+            "people" => $people,
+            "parsedResponse" => $parsedResponse
+        ],
+    );
 });
 
 $app->get("/auth", function (Request $request, Response $response, $args) {
