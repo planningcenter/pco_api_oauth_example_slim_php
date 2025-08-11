@@ -158,6 +158,37 @@ $app->get("/auth/complete", function (Request $request, Response $response, $arg
         ->withStatus(302);
 });
 
+$app->get("/profile", function (Request $request, Response $response, $args) {
+    $session = $this->get("session");
+    $view = Twig::fromRequest($request);
+
+    // Check if user is logged in and has user info
+    if (!$session->exists("token") || !$session->exists("current_user")) {
+        return $response
+            ->withHeader("Location", "/auth")
+            ->withStatus(302);
+    }
+
+    $currentUser = $session->get("current_user");
+
+    $apiUrl = $this->get("apiUrl");
+    $oauth = $this->get("oauth");
+    $token = $session->token;
+    $userInfoRequest = $oauth->getAuthenticatedRequest("GET", "{$apiUrl}/oauth/userinfo", $token);
+    $userInfoResponse = $oauth->getParsedResponse($userInfoRequest);
+
+    return $view->render(
+        $response,
+        "profile.html",
+        [
+            "loggedIn" => true,
+            "currentUser" => $currentUser,
+            "idTokenClaims" => $currentUser["claims"],
+            "userInfoClaims" => $userInfoResponse
+        ]
+    );
+});
+
 $app->get("/auth/logout", function (Request $request, Response $response, $args) {
     $oauth = $this->get("oauth");
     $apiUrl = $this->get('apiUrl');
