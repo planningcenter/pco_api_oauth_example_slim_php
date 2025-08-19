@@ -23,7 +23,7 @@ $container->set("oauth", function() use($container) {
         "clientSecret" => getenv("OAUTH_SECRET"),
         "redirectUri" => "http://localhost:6001/auth/complete",
         "scopeSeparator" => " ",
-        "scopes" => ["openid", "profile", "email", "people"],
+        "scopes" => ["openid", "people"],
         "urlAccessToken" => "{$container->get("apiUrl")}/oauth/token",
         "urlAuthorize" => "{$container->get("apiUrl")}/oauth/authorize",
         "urlResourceOwnerDetails" => "{$container->get("apiUrl")}/oauth/userinfo"
