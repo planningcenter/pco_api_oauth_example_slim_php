@@ -7,9 +7,11 @@
   <body>
     <div class="wrap">
       <header>
-        <h1>Hello PCO API!</h1>
+        <h1>Hello {{ currentUser.name ?: "Guest" }}!</h1>
         {% if loggedIn %}
           <ul class="nav">
+            <li><a href='/people'>People</a></li>
+            <li><a href='/profile'>Profile</a></li>
             <li><a href='/auth/logout'>Logout</a></li>
           </ul>
         {% endif %}

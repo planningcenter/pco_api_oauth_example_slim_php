@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block content %}
+  <div class="profile">
+    <h2>User Profile</h2>
+
+    {% if userInfoClaims %}
+      <div class="claims-section">
+        <h3>User Information (from /oauth/userinfo)</h3>
+        <table class="claims-table">
+          {% for key, value in userInfoClaims %}
+            <tr class="claim-item">
+              <td class="claim-name">{{ key }}</td>
+              <td class="claim-value">{{ value }}</td>
+            </tr>
+          {% endfor %}
+        </table>
+      </div>
+    {% endif %}
+
+    {% if idTokenClaims %}
+      <div class="claims-section">
+        <h3>ID Token Claims</h3>
+        <table class="claims-table">
+          {% for key, value in idTokenClaims %}
+            <tr class="claim-item">
+              <td class="claim-name">{{ key }}</td>
+              <td class="claim-value">{{ value }}</td>
+            </tr>
+          {% endfor %}
+        </table>
+      </div>
+    {% endif %}
+
+  </div>
+{% endblock %}
