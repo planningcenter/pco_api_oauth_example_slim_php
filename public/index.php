@@ -26,7 +26,8 @@ $container->set("oauth", function() use($container) {
         "scopes" => ["openid", "people"],
         "urlAccessToken" => "{$container->get("apiUrl")}/oauth/token",
         "urlAuthorize" => "{$container->get("apiUrl")}/oauth/authorize",
-        "urlResourceOwnerDetails" => "{$container->get("apiUrl")}/oauth/userinfo"
+        "urlResourceOwnerDetails" => "{$container->get("apiUrl")}/oauth/userinfo",
+        "pkceMethod" => \League\OAuth2\Client\Provider\GenericProvider::PKCE_METHOD_S256
     ]);
 });
 AppFactory::setContainer($container);
@@ -103,9 +104,13 @@ $app->get('/people', function (Request $request, Response $response, $args) {
 $app->get("/auth", function (Request $request, Response $response, $args) {
     // Build the authorization URL and redirect to it
     $oauth = $this->get("oauth");
+    $session = $this->get("session");
+
     $authorizationUrl = $oauth->getAuthorizationUrl([
         'prompt' => 'select_account' // to allow user account selection or "login" to force re-authentication
     ]);
+
+    $session->set("code_verifier", $oauth->getPkceCode());
 
     return $response
         ->withHeader("Location", $authorizationUrl)
@@ -117,9 +122,17 @@ $app->get("/auth/complete", function (Request $request, Response $response, $arg
     $code = $request->getQueryParams()["code"];
     // Use the code to fetch our access token
     $oauth = $this->get("oauth");
+
+    // Restore the PKCE code for the token exchange
+    $session = $this->get("session");
+    if ($session->exists("code_verifier")) {
+        $oauth->setPkceCode($session->get("code_verifier"));
+    }
+
     $token = $oauth->getAccessToken("authorization_code", ["code" => $code]);
 
-    $session = $this->get("session");
+    $session->delete("code_verifier");
+
     // Set the token in our session
     $session->set("token", $token);
 
