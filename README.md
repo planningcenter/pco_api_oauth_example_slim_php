@@ -1,4 +1,4 @@
-# PCO API OAuth Slim PHP Example
+# PCO API OAuth / OIDC / PKCE Example - Slim + PHP
 
 This is an example Slim PHP app for demonstrating how one might build an app to authenticate any PCO user
 and then subsequently use that authentication to query the API.
@@ -30,4 +30,3 @@ You can learn more about Planning Center's API [here](https://developer.planning
 ## Copyright & License
 
 Copyright Ministry Centered Technologies. Licensed MIT.
-
